@@ -7,6 +7,7 @@ import Swal from 'sweetalert2'  //Importar SweetAlert2
 
 import { Usuario } from 'src/app/models/usuario.model';  //Importar el modelo de Usuario
 import { URL_SERVICIOS } from 'src/app/config/config';  //Importar la url base 'http://localhost:3000' para cualquier petición al backend-server
+import { SubirArchivoService } from '../subirArchivo/subir-archivo.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,7 @@ export class UsuarioService {
 
   token: string;
 
-  constructor(public http: HttpClient, public router: Router) {
+  constructor(public http: HttpClient, public router: Router, public subirArchivo: SubirArchivoService) {
 
     this.cargarStorage();
   }
@@ -40,22 +41,22 @@ export class UsuarioService {
 
   cargarStorage(){
     
-    if(localStorage.getItem('token')){
-      this.token = localStorage.getItem('token');
-      this.usuario = JSON.parse(localStorage.getItem('usuario'));
+    if(localStorage.getItem('token')){  // Si existe la clave token en el LocalStorege
+      this.token = localStorage.getItem('token');  // Guarda el contenido de la clave token en la propiedad token
+      this.usuario = JSON.parse(localStorage.getItem('usuario'));  // Guarda el contenido de la clave usuario en la propiedad usuario se pasa por el JSON.parse para convertirlo a un objeto nuevamente ya que en el LocalStorage se almenena en forma de texto plano
     } else{
-      this.token = '';
-      this.usuario = null;
+      this.token = '';  // Si no existe la clave token en el LocalStorage deja la propiedad token vacía o null
+      this.usuario = null;  // Si no existe la clave token en el LocalStorage deja la propiedad usuario null
     }
   }
 
   logout(){
 
-    this.usuario = null;
-    this.token = '';
-    localStorage.removeItem('usuario');
-    localStorage.removeItem('token');
-    this.router.navigate(['/login']);
+    this.usuario = null;  // Pon la propiedad usuario a null
+    this.token = '';  // Pon la propiedad token a vacío
+    localStorage.removeItem('usuario');  // Borra la clave usuario del LocalStorage
+    localStorage.removeItem('token');  // Borra la clave token del LocalStorage
+    this.router.navigate(['/login']);  // Navega a la ruta http://localhost:4200/login
 
   }
 
@@ -93,6 +94,35 @@ export class UsuarioService {
               Swal.fire('Usuario creado', usuario.email, 'success');  //Alerta de SweetAlert2 para usuario creado
               return resp.usuario;  //Entrega solo el usuario dentro de toda la respuesta a quién esté suscrito
             }));
+  }
+
+  actualizarUsuario(usuario: Usuario){
+
+    let url = `${URL_SERVICIOS}/usuario/${usuario._id}?token=${this.token}`;  //url http://localhost:3000/usuario/:id?token=xxxxxxxxxxxx a la cual haremos la petición
+
+    return this.http.put(url, usuario)  //La respueta a esta petición será entregada (retornada) a quien esté suscrito (esto es un observable)
+            .pipe(map( (resp: any) => {
+              Swal.fire('Usuario Actualizado', resp.usuario.nombre, 'success');  //Alerta de SweetAlert2 para usuario actualizado
+              this.guardarStorage(resp.usuario._id, this.token, resp.usuario);  //Guardar en el LocalStorage los datos del usuario actualizado
+              return true;
+            }));
+
+  }
+
+  cambiarImagen(archivo: File, id: string){
+
+    this.subirArchivo.subirArchivo(archivo, 'usuarios', id)
+    .then((resp: any) => {  // El then de la promesa creada en el servicio subirArchivo
+      
+      this.usuario.img = resp.usuario.img;  // Almacena en la propiedad usuario el nuevo valor de usuario.img con la imagen actualizada
+      Swal.fire('Imagen Actualizada', this.usuario.nombre, 'success');  //Alerta de SweetAlert2 para imagen actualizada
+      this.guardarStorage(id, this.token, this.usuario);  // Guarda en el LocalStorage los nuevos valores actualizados
+
+    })
+    .catch(resp => {  // El catch de la promesa creada en el servicio subirArchivo
+      
+      console.log(resp);  // Imprime en consola la respuesta con el error si existe
+    });
   }
 
 }

@@ -9,6 +9,9 @@ import { NopagefoundComponent } from './nopagefound/nopagefound.component';
 // Rutas
 import { RouterModule } from "@angular/router";
 
+// Pipes
+import { PipesModule } from '../pipes/pipes.module';
+
 
 @NgModule({
     declarations: [
@@ -19,7 +22,8 @@ import { RouterModule } from "@angular/router";
     ],
     imports:[
         RouterModule,
-        BrowserModule
+        BrowserModule,
+        PipesModule
     ],
     exports: [
         BreadcrumbsComponent,
