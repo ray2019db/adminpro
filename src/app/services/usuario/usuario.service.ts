@@ -72,14 +72,8 @@ export class UsuarioService {
 
     return this.http.post(url, usuario)  //La respueta a esta petición será entregada (retornada) a quien esté suscrito (esto es un observable)
     .pipe(map( (resp: any) => {  //Pasa por el map la respuesta
-        // localStorage.setItem('id', resp.id);  //Guarda el id del usuario logeado en el LocalStorage en una clave id
-        // localStorage.setItem('token', resp.token);  //Guarda el token del usuario logeado en el LocalStorage en una clave token
-        // localStorage.setItem('usuario', JSON.stringify(resp.usuario)); //Guarda el usuario del usuario logeado en el LocalStorage en una clave usuario como es un JSON pásalo por el stringify para convertirlo a texto plano que es el formato en que almacena los datos el LocalStorage
         
         this.guardarStorage(resp.id, resp.token, resp.usuario);
-
-        // this.usuario = resp.usuario;
-        // this.token = resp.token;
         
         return true;  //Devuelve un true si se almacenan los datos en el LocalStorage correctamente
     }));
@@ -101,10 +95,15 @@ export class UsuarioService {
     let url = `${URL_SERVICIOS}/usuario/${usuario._id}?token=${this.token}`;  //url http://localhost:3000/usuario/:id?token=xxxxxxxxxxxx a la cual haremos la petición
 
     return this.http.put(url, usuario)  //La respueta a esta petición será entregada (retornada) a quien esté suscrito (esto es un observable)
-            .pipe(map( (resp: any) => {
+            .pipe(map( (resp: any) => {  // Pasa por el operador map la rspuesta
+
+              if(usuario._id === this.usuario._id){  // Si el usuario que quiero actualizar es el mismo que el usuario logueado entonces guardalo en el LocalStorage
+
+                this.guardarStorage(resp.usuario._id, this.token, resp.usuario);  //Guardar en el LocalStorage los datos del usuario actualizado que en este caso sería el usuario logueado
+              }
+
               Swal.fire('Usuario Actualizado', resp.usuario.nombre, 'success');  //Alerta de SweetAlert2 para usuario actualizado
-              this.guardarStorage(resp.usuario._id, this.token, resp.usuario);  //Guardar en el LocalStorage los datos del usuario actualizado
-              return true;
+              return true;  // Retorna un true si todo OK, si retornara false sabríamos que hubo problemas y no actualizó
             }));
 
   }
@@ -123,6 +122,33 @@ export class UsuarioService {
       
       console.log(resp);  // Imprime en consola la respuesta con el error si existe
     });
+  }
+
+  cargarUsuarios(desde: number = 0){
+
+    let url = URL_SERVICIOS + '/usuario?desde=' + desde;  // url = 'http://localhost:3000/usuario?desde=0' a la cual haremos la petición
+
+    return this.http.get(url);  //La respueta a esta petición será entregada (retornada) a quien esté suscrito (esto es un observable)
+
+  }
+
+  buscarUsuarios(termino: string){
+
+    let url = URL_SERVICIOS + '/busqueda/coleccion/usuarios/' + termino;  // url = 'http://localhost:3000/busqueda/coleccion/usuarios/termino_de_busqueda'
+
+    return this.http.get(url)  // Devuelve la busqueda realizada con los usuarios que coincidan con el término de búsqueda en la colección de usuarios de mongoDB
+      .pipe(map( (resp: any) => resp.usuarios));  // Pasa la respuesta con el resultado de la búsqueda por el operador map y devuelve solo el array de usuarios
+  }
+
+  borrarUsuario(id: string){
+
+    let url = URL_SERVICIOS + '/usuario/' + id + '?token=' + this.token; // url = 'http://localhost:3000/usuario/6061f8fc782623174098b39c?token=token_de_usuaio_logueado'
+
+    return this.http.delete(url)  // Petición para eliminar el usuario cuyo id va en la url
+      .pipe(map( resp =>  {  // Pasa por el map la respuesta y retorna un true además del SweetAlert
+        Swal.fire('Eliminado', 'Usuario eliminado correctamente', 'success');  //SweetAlert2
+        return true;
+      }));
   }
 
 }
