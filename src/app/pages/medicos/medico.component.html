@@ -1,0 +1,63 @@
+<div class="row animated fadeIn">
+
+    <div class="col-md-6">
+        <div class="card card-body">
+            <h3 class="box-title m-b-0">{{medico.nombre}}</h3>
+            <div class="row">
+                <div class="col-sm-12 col-xs-12">
+                    <!--El formulario de médico #fMedico cuando se envía con el (ngSubmit) ejecuta la función guardarMedico y envía como parámetro todo el formulario, ngNativeValidate es para validar todo el formulario de manera nativa mediante angular-->
+                    <form #fMedico="ngForm" ngNativeValidate (ngSubmit)="guardarMedico(fMedico)">
+
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <!--Con el [(ngModel)] enlazo este input con la propiedad medico de tipo Medico "medico.nombre" (modelo de Medico) el name debe ser igual que la clave (key) empleada dentro de la propieda medico de tipo Medico (modelo Medico) en este caso (name="nombre") ver el modelo "medico.model.ts" para que se comprenda mejor -->
+                            <input [(ngModel)]="medico.nombre" name="nombre" type="text" class="form-control" placeholder="Nombre del médico" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Hospital</label>
+                            <!--El (change) es para cuando se detecte algún cambio ejecute el método "cambioHospital($event.target.value)" el ($event.target.value) hace referencia al id del hospital seleccionado en el select -->
+                            <!--Con el [(ngModel)] enlazo este input (en este caso de tipo select) con la propiedad medico de tipo Medico "medico.hospital" (modelo de Medico) el name debe ser igual que la clave (key) empleada dentro de la propieda medico de tipo Medico (modelo Medico) en este caso (name="hospital") ver el modelo "medico.model.ts" para que se comprenda mejor-->
+                            <select (change)="cambioHospital($event.target.value)" [(ngModel)]="medico.hospital" name="hospital" class="form-control" required>
+                                <option value="">Seleccione Hospital</option>
+                                <!--El *ngFor se usa para rellenar las opciones del select con el contenido de la propiedad hospitales (es un arreglo) de tipo Hospital[] en el value se emplea [value]="hospital._id" y en la vista se emplea {{hospital.nombre}} -->
+                                <option *ngFor="let hospital of hospitales" [value]="hospital._id">{{hospital.nombre}}</option>
+                            </select>
+                        </div>
+                        <!--Botón Guardar de tipo submit para enviar todos los campos del formulario al hacer click -->
+                        <button type="submit" class="btn btn-success waves-effect waves-light m-r-10">Guardar</button>
+                        <!--Botón cancelar de tipo button al hacer click redirecciona con el [routerLink]="['/medicos']" a la ruta del componente medicos -->
+                        <button [routerLink]="['/medicos']" type="button" class="btn btn-inverse waves-effect waves-light">Cancelar</button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card card-body">
+
+            <h4 class="box-title m-b-0 text-center">Hospital</h4>
+            <h5 class="mt-4">{{hospital.nombre}}</h5>
+            <!--La imagen del hospital hospital.img se pasa por el pipe imagen con el argumento 'hospital'-->
+            <img [src]=" hospital.img | imagen:'hospital' " class="rounded img-fluid mt-2">
+
+        </div>
+    </div>
+    <!-- Solo se muestra este div cuando exista un médico selecionado -->
+    <div class="col-md-3" *ngIf="medico._id">
+
+        <div class="card card-body">
+
+            <h4 class="box-title m-b-0">Fotografía</h4>
+            <!--La imagen del médico medico.img se pasa por el pipe imagen con el argumento 'medico', tiene la clase 'pointer' para que muestre que se puede hacer click en la imagen-->
+            <img (click)="cambiarFoto()" [src]="medico.img | imagen:'medico'" class="img-circle img-fluid pointer">
+
+        </div>
+
+    </div>
+
+
+
+</div>

@@ -13,7 +13,7 @@
 
                     <img *ngIf="!imagenTemporal" [src]="abc | imagen" class="w150">
                     <img *ngIf="imagenTemporal" [src]="imagenTemporal" class="w150">
-
+                    <!--El argumento de la función '$event.target.files[0]' es el archivo de tipo file seleccionado-->
                     <input (change)="seleccionImagen($event.target.files[0])" type="file">
 
                 </div>

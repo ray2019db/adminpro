@@ -1,0 +1,81 @@
+<div class="row animated fadeIn">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <!--Al soltar una tecla ejecutará el método "buscarHospital(input.value)" para hacer una búsqueda en la colección hospitales de todos los hospitales que coincidan con el término de búsqueda del input -->
+                <input #input (keyup)="buscarHospital(input.value)" type="text" class="form-control" placeholder="Buscar Hospital ...">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="cargando" class="row animated fadeIn">
+    <div class="col-sm-12">
+        <div class="alert alert-warning text-center">
+            <strong>Cargando ...</strong>
+            <br>
+            <i class="fa fa-refresh fa-spin fa-2x"></i>
+            <br>
+            <span>Espere por favor</span>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="!cargando" class="row animated fadeIn">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+
+                <div class="d-flex flex-row-reverse">
+                    <button (click)="crearHospital()" type="button" class="btn waves-effect waves-light btn-rounded btn-primary"> <i class="fa fa-plus"></i> Crear Hospital</button>
+                </div>
+                <!--Este <h3> mostrará el total de hospitales guardados en la colección de hospitales obtenidos de la propiedad totalHospitales del servicio hospitalService-->
+                <h3 class="card-title mt-2">Hospitales Registrados ( <small>{{hospitalService.totalHospitales}}</small> )</h3>
+
+                <div class="row d-flex flex-row-reverse">
+
+                    <div class="col-md-1.5 mr-3">
+                        <!--Select para mostrar la cantidad de hospitales a mostrar por página que al detectar un cambio en el select ejecutará la función "cantidadHospitalesMostrados()"-->
+                        <select [(ngModel)]="limite" (change)="cantidadHospitalesMostrados()" name="limite" class="form-control">
+                            <option *ngFor="let cantidadHospitales of limiteHospitalesMostrados" [value]="cantidadHospitales" selected>{{cantidadHospitales}}</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <h5 (click)="cantidadHospitalesMostrados()" class="pointer">Hospitales por página</h5>
+                    </div>
+
+                </div>
+
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Foto</th>
+                            <th>Hospital</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!--El *ngFor barrerá la propiedad hospitales: Hospital[] que es un arreglo de tipo Hospital (modelo Hospital) con todos los hospitales para ser mostrados-->
+                        <tr *ngFor="let hospital of hospitales">
+                            <td class="w70"><img (click)="mostrarModal(hospital._id)" [src]="hospital.img | imagen:'hospital'" class="img50 pointer"></td>
+                            <td>
+                                <!--Con el [(ngModel)]="hospital.nombre" se enlaza este input con la variable hospital (un hospital específico dentro del arreglo de hospitales de la propiedad hospitales) obtenida en el *ngFor de arriba concretamente con la clave nombre o sea "hospital.nombre"-->
+                                <input [(ngModel)]="hospital.nombre" name="nombre" type="text" class="form-control">
+                            </td>
+                            <td>
+                                <button (click)="actualizarNombreHospital(hospital)" class="btn btn-primary"><i class="fa fa-save"></i></button>
+                                <button (click)="borrarHospital(hospital._id, hospital.nombre)" class="btn btn-danger ml-2"><i class="fa fa-trash-o"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button (click)="cambiarDesde(-5)" class="btn btn-secundary">Anteriores</button>
+                <button (click)="cambiarDesde(5)" class="btn btn-secundary ml-2">Siguientes</button>
+
+            </div>
+        </div>
+    </div>
+</div>

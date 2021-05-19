@@ -16,11 +16,11 @@ export class UsuariosComponent implements OnInit {
 
   usuarios: Usuario[] = [];
 
-  desde: number = 0;
+  desde: number = 0;  // Valor a partir del cual se mostrarán los usuarios en la vista html
 
-  totalUsuarios: number = 0;
+  totalUsuarios: number = 0;  // Número total de usuarios almacenados en la DB
 
-  cargando: boolean;
+  cargando: boolean;  // Permite mostrar o no el Alert de Cargando... en la vista html
 
   constructor( public usuarioService: UsuarioService, public modalUploadService: ModalUploadService) { }
 
@@ -69,7 +69,7 @@ export class UsuariosComponent implements OnInit {
 
   buscarUsuario(termino: string){
 
-    if(termino.length <= 0){  // Si el término de búsqueda está vacío entonces llama a ala función cargarUsuarios para que muestre todos los usuarios paginados
+    if(termino.length <= 0){  // Si el término de búsqueda está vacío entonces llama a a la función cargarUsuarios para que muestre todos los usuarios paginados
 
       this.cargarUsuarios(this.desde);
       return;
