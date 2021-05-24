@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 
-import { SidebarService } from '../../services/sidebar.service';
 import { UsuarioService } from '../../services/usuario/usuario.service';
 import { Usuario } from '../../models/usuario.model';
 
@@ -14,11 +13,15 @@ export class SidebarComponent implements OnInit {
 
   usuario: Usuario;
 
-  constructor(public sideService: SidebarService, public usuarioService: UsuarioService) { }
+  menu: any[] = [];
+
+  constructor(public usuarioService: UsuarioService) { }
 
   ngOnInit(): void {
 
-    this.usuario = this.usuarioService.usuario;  //Asignarle a la propiedad usuario el valor de usuario del servicio usuarioService al cargar el componente y poder emplearlo en el html
+          this.usuario = this.usuarioService.usuario;  //Asignarle a la propiedad usuario de tipo Usuario (modelo de Usuario) el valor de la propiedad usuario del servicio usuarioService al cargar el componente y poder emplearlo en el html
+          
+          this.menu = this.usuarioService.menu;  // Al inicializar el componente (observa que está dentro del 'ngOnInit') almacena en la propiedad menu los datos que posee la propiedad menu del servicio usuarioService (de esta manera se garantiza que el menu del sidebar se cargue correctamente según el role del usuario que se autentique)
   }
 
 }

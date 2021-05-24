@@ -1,0 +1,81 @@
+<div class="row mt-5">
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+
+                <h4 class="card-title">Usuarios</h4>
+
+                <table class="table table-hover mt-4">
+                    <tbody>
+                        <!--Con este ngIf puedo mostrar una alerta cuando el resultado de la búsqueda no arroja ningún resultado (es el caso en que la longitud del arreglo es 0)-->
+                        <tr *ngIf="usuarios.length === 0">
+                            <td>
+                                <h5 class="alert alert-primary">No hay Usuarios en la búsqueda</h5>
+                            </td>
+                        </tr>
+                        <tr *ngFor="let usuario of usuarios" [routerLink]="['/usuarios']" class="pointer">
+                            <!--El [src] de la imagen es la ruta conformada por el nombre de la imagen 'usuario.img' pasada por el pipe imagen que se encarga de conformar la ruta de dicha imagen en este caso sería 'http://localhost:3000/img/usuarios/usuario.img'-->
+                            <td class="w70"><img [src]="usuario.img | imagen" class="img50 img-circle"></td>
+                            <td>{{usuario.nombre}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+
+                <h4 class="card-title">Médicos</h4>
+
+                <table class="table table-hover mt-4">
+                    <tbody>
+                        <!--Con este ngIf puedo mostrar una alerta cuando el resultado de la búsqueda no arroja ningún resultado (es el caso en que la longitud del arreglo es 0)-->
+                        <tr *ngIf="medicos.length === 0">
+                            <td>
+                                <h5 class="alert alert-primary">No hay Médicos en la búsqueda</h5>
+                            </td>
+                        </tr>
+                        <tr *ngFor="let medico of medicos" [routerLink]="['/medico', medico._id]" class="pointer">
+                            <!--El [src] de la imagen es la ruta conformada por el nombre de la imagen 'medico.img' pasada por el pipe imagen que se encarga de conformar la ruta de dicha imagen en este caso sería 'http://localhost:3000/img/medicos/medico.img'-->
+                            <td class="w70"><img [src]="medico.img | imagen:'medico'" class="img50 img-circle"></td>
+                            <td>{{medico.nombre}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+
+                <h4 class="card-title">Hospitales</h4>
+
+                <table class="table table-hover mt-4">
+                    <tbody>
+                        <!--Con este ngIf puedo mostrar una alerta cuando el resultado de la búsqueda no arroja ningún resultado (es el caso en que la longitud del arreglo es 0)-->
+                        <tr *ngIf="hospitales.length === 0">
+                            <td>
+                                <h5 class="alert alert-primary">No hay Hospitales en la búsqueda</h5>
+                            </td>
+                        </tr>
+                        <tr *ngFor="let hospital of hospitales" [routerLink]="['/hospitales']" class="pointer">
+                            <!--El [src] de la imagen es la ruta conformada por el nombre de la imagen 'hospital.img' pasada por el pipe imagen que se encarga de conformar la ruta de dicha imagen en este caso sería 'http://localhost:3000/img/hospitales/hospital.img'-->
+                            <td class="w70"><img [src]="hospital.img | imagen:'hospital'" class="img50 img-circle"></td>
+                            <td>{{hospital.nombre}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+</div>

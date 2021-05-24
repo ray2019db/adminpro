@@ -6,16 +6,17 @@ declare function init_plugings();  //Carga el componente correctamente de lo con
 @Component({
   selector: 'app-nopagefound',
   templateUrl: './nopagefound.component.html',
-  styles: [
-  ]
+  styleUrls: ['../../../assets/css/pages/error-pages.css']  // Esta es el path del archivo 'error-pages.css' de estilos para que el componente se muestre con todos sus estilos y clases en la vista html incluyendo la imagen del ratón
 })
 export class NopagefoundComponent implements OnInit {
+
+  anio: number = new Date().getFullYear();  // Propiedad del año para que se muestre el año de forma dinámica en el pie de página de la vista html del componente
 
   constructor() { }
 
   ngOnInit(): void {
 
-    init_plugings();  //Llama a la función cuando carga el componente para que se muestre correctamente
+    init_plugings();  //Llama a la función para que cargue todos los pluggins de js cuando carga el componente para que se muestre correctamente
 
   }
 

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { map } from 'rxjs/operators';  //importar map
+import { map, catchError } from 'rxjs/operators';  //importar el operador map (para transformar la respuesta de una petición) y el catchError (para capturar el error de una petición)
+import { throwError } from 'rxjs';  // Importar el objeto throwError
 
 import Swal from 'sweetalert2'  //Importar SweetAlert2
 
@@ -18,6 +19,8 @@ export class UsuarioService {
 
   token: string;
 
+  menu: any[] = [];  // Propiedad menu que almacenará (en un arreglo de objetos) el menú del SideBar
+
   constructor(public http: HttpClient, public router: Router, public subirArchivo: SubirArchivoService) {
 
         this.cargarStorage();  //Ejecuta este método en cuanto se carga el servicio
@@ -25,28 +28,31 @@ export class UsuarioService {
 
   estaLogueado(){
 
-        return (this.token.length > 1) ? true : false; //Si el token existe retorna un true sino un false (Operador ternario)
+        return (this.token.length > 1) ? true : false; //Si el token existe retorna un booleano 'true' sino un 'false' (Operador ternario) (si retorna un 'true' significa que existe un token y que el usuario está logueado correctamente de lo contrario retornará un 'false' porque el usuario no está logueado)
       }
 
-  guardarStorage(id: string, token: string, usuario: Usuario){
+  guardarStorage(id: string, token: string, usuario: Usuario, menu: any){
 
         localStorage.setItem('id', id);  //Guarda el id del usuario logeado en el LocalStorage en una clave id
         localStorage.setItem('token', token);  //Guarda el token del usuario logeado en el LocalStorage en una clave token
-        localStorage.setItem('usuario', JSON.stringify(usuario)); //Guarda el usuario del usuario logeado en el LocalStorage en una clave usuario como es un JSON pásalo por el stringify para convertirlo a texto plano que es el formato en que almacena los datos el LocalStorage
+        localStorage.setItem('usuario', JSON.stringify(usuario)); //Guarda el usuario del usuario logeado en el LocalStorage en una clave usuario como es un JSON (o sea un objeto) pásalo por el método 'JSON.stringify' para convertirlo a texto plano que es el formato en que almacena los datos el LocalStorage
+        localStorage.setItem('menu', JSON.stringify(menu));  //Guarda el menu del usuario logeado (este menú variará según el role del usuario logueado) en el LocalStorage en una clave 'menu'. Como es un JSON (o sea un arreglo de objetos) pásalo por el método 'JSON.stringify' para convertirlo a texto plano que es el formato en que almacena los datos el LocalStorage
     
-        this.usuario = usuario;
-        this.token = token;
-    
+        this.usuario = usuario;  // Almacena en la propiedad usuario los datos del usuario pasado en el argumento de la función
+        this.token = token;  // Almacena en la propiedad token el valor del token pasado en el argumento de la función    
+        this.menu = menu; // Almacena en la propiedad menu el valor de menu pasado en el argumento de la función
   }
 
   cargarStorage(){
     
-        if(localStorage.getItem('token')){  // Si existe la clave token en el LocalStorege
+        if(localStorage.getItem('token')){  // Si existe la clave token en el LocalStorage (o sea que hay un usuario logueado)
           this.token = localStorage.getItem('token');  // Guarda el contenido de la clave token en la propiedad token
           this.usuario = JSON.parse(localStorage.getItem('usuario'));  // Guarda el contenido de la clave usuario en la propiedad usuario se pasa por el JSON.parse para convertirlo a un objeto nuevamente ya que en el LocalStorage se almenena en forma de texto plano
-        } else{
-          this.token = '';  // Si no existe la clave token en el LocalStorage deja la propiedad token vacía o null
-          this.usuario = null;  // Si no existe la clave token en el LocalStorage deja la propiedad usuario null
+          this.menu = JSON.parse(localStorage.getItem('menu'));  // Guarda el contenido de la clave menu en la propiedad menu se pasa por el 'JSON.parse' para convertirlo a un arreglo de objetos nuevamente ya que en el LocalStorage se almenena en forma de texto plano
+        } else{  // De lo contrario si no existe la clave token en el LocalStorage haz lo sgte
+          this.token = '';  // Deja la propiedad token vacía o null
+          this.usuario = null;  // Deja la propiedad usuario en null
+          this.menu = null;  // Deja la propiedad menu en null
         }
   }
 
@@ -54,9 +60,12 @@ export class UsuarioService {
 
         this.usuario = null;  // Pon la propiedad usuario a null
         this.token = '';  // Pon la propiedad token a vacío
+        this.menu = null;  // Pon la propiedad menu a null
         localStorage.removeItem('usuario');  // Borra la clave usuario del LocalStorage
+        localStorage.removeItem('menu');  // Borra la clave menu del LocalStorage
         localStorage.removeItem('token');  // Borra la clave token del LocalStorage
-        this.router.navigate(['/login']);  // Navega a la ruta http://localhost:4200/login    
+        localStorage.removeItem('id');  // Borra la clave id del LocalStorage
+        this.router.navigate(['/login']);  // Navega a la ruta 'http://localhost:4200/login' del componente login 
   }
 
   login(usuario: Usuario, recuerdame: boolean = false){
@@ -67,38 +76,50 @@ export class UsuarioService {
           localStorage.removeItem('email');  // Si el checkmark no está activado borra del LocalStorage la clave email si existe
         }
     
-        let url = URL_SERVICIOS + '/login';  // url 'http://localhost:3000/login' a la cual haremos la petición
+        let url = URL_SERVICIOS + '/login';  // url = 'http://localhost:3000/login' a la cual haremos la petición http
     
         return this.http.post(url, usuario)  // La respuesta a esta petición será entregada (retornada) a quien esté suscrito (esto es un observable)
-        .pipe(map( (resp: any) => {  //P asa por el map la respuesta
+        .pipe(map( (resp: any) => {  // Si la petición http es realizada correctamente la respuesta será pasada por el operador map (este observable devolverá en la respuesta un id, un token, un usuario de tipo Usuario y un menu empleado en el sidebar)
             
-            this.guardarStorage(resp.id, resp.token, resp.usuario);  // Guarda en el LocalStorage el id, el token y el usuario en sus respectivas claves
+            this.guardarStorage(resp.id, resp.token, resp.usuario, resp.menu);  // Guarda en el LocalStorage el id, el token, el usuario y el menu en sus respectivas claves
             
-            return true;  //Devuelve un true si se almacenan los datos en el LocalStorage correctamente
-        }));
+            return true;  //Devuelve un true si el usuario se autentica correctamente en el backend server y se almacenan los datos en el LocalStorage correctamente
+        }),
+          catchError( err => {  // Método que se encarga de capturar el error ('err' de tipo HttpErrorResponse) devuelto por la petición http si existe un error (se importa del 'rxjs/operators'). Este método retornará un observable (el objeto 'throwError')
+              console.log('Sucedió un Error');
+              Swal.fire('Error de Login', err.error.mensaje, 'error');  //Alerta de SweetAlert2 para mostrar el error del login de usuario
+              return throwError('Error Personalizado del throwError');  // El throwError es el objeto (importado desde 'rxjs') que devuelve el catchError (recuerda que es un observable) como notificación de un error
+          })
+        );
   }
 
   crearUsuario(usuario: Usuario){
   
-        let url = URL_SERVICIOS + '/usuario';  //url http://localhost:3000/usuario a la cual haremos la petición
+        let url = URL_SERVICIOS + '/usuario';  // url 'http://localhost:3000/usuario' a la cual haremos la petición http
     
-        return this.http.post(url, usuario)  //La respueta a esta petición será entregada (retornada) a quien esté suscrito (esto es un observable)
-                .pipe(map((resp: any) => {  //La respuesta se pasa por el operador map para obtener solo el usuario dentro de toda la respuesta
+        return this.http.post(url, usuario)  // La respueta a esta petición http de tipo POST será entregada (retornada) a quien esté suscrito (esto es un observable). Como parámetros enviamos la url y el usuario (o sea los datos del usuario que queremos crear) que viene en el cuerpo (body) de la petición
+                .pipe(map((resp: any) => {  // Si la respuesta es correcta se pasa por el operador map para obtener solo el usuario dentro de toda la respuesta
                   Swal.fire('Usuario creado', usuario.email, 'success');  //Alerta de SweetAlert2 para usuario creado
-                  return resp.usuario;  //Entrega solo el usuario dentro de toda la respuesta a quién esté suscrito
-                }));
+                  return resp.usuario;  // Entrega solo el usuario dentro de toda la respuesta obtenida (De toda la respuesta entragada por el observable solo retornaré el usuario)
+                }),
+                  catchError( err => {  // Método que se encarga de capturar el error ('err' de tipo HttpErrorResponse) devuelto por la petición http si existe un error (se importa del 'rxjs/operators'). Este método retornará un observable (el objeto 'throwError')
+                  console.log('Sucedió un Error');
+                  Swal.fire(err.error.mensaje, err.error.errors.message, 'error');  //Alerta de SweetAlert2 para mostrar el error de registro de usuario
+                  return throwError('Error Personalizado del throwError');  // El throwError es el objeto (importado desde 'rxjs') que devuelve el catchError (recuerda que es un observable) como notificación de un error
+                  })    
+                );
   }
 
   actualizarUsuario(usuario: Usuario){
 
         let url = `${URL_SERVICIOS}/usuario/${usuario._id}?token=${this.token}`;  //url http://localhost:3000/usuario/:id?token=xxxxxxxxxxxx a la cual haremos la petición
     
-        return this.http.put(url, usuario)  //La respueta a esta petición será entregada (retornada) a quien esté suscrito (esto es un observable)
-                .pipe(map( (resp: any) => {  // Pasa por el operador map la rspuesta
+        return this.http.put(url, usuario)  //La respueta a esta petición http será entregada (retornada) a quien esté suscrito (esto es un observable)
+                .pipe(map( (resp: any) => {  // Pasa por el operador map la respuesta
     
                   if(usuario._id === this.usuario._id){  // Si el usuario que quiero actualizar es el mismo que el usuario logueado entonces guardalo en el LocalStorage
     
-                    this.guardarStorage(resp.usuario._id, this.token, resp.usuario);  //Guardar en el LocalStorage los datos del usuario actualizado que en este caso sería el usuario logueado
+                    this.guardarStorage(resp.usuario._id, this.token, resp.usuario, this.menu);  //Guardar en el LocalStorage los datos del usuario actualizado que en este caso sería el usuario logueado
                   }
     
                   Swal.fire('Usuario Actualizado', resp.usuario.nombre, 'success');  //Alerta de SweetAlert2 para usuario actualizado
@@ -111,14 +132,14 @@ export class UsuarioService {
         this.subirArchivo.subirArchivo(archivo, 'usuarios', id)
         .then((resp: any) => {  // El then de la promesa creada en el servicio subirArchivo
           
-          this.usuario.img = resp.usuario.img;  // Almacena en la propiedad usuario el nuevo valor de usuario.img con la imagen actualizada
-          Swal.fire('Imagen Actualizada', this.usuario.nombre, 'success');  //Alerta de SweetAlert2 para imagen actualizada
-          this.guardarStorage(id, this.token, this.usuario);  // Guarda en el LocalStorage los nuevos valores actualizados
-    
+            this.usuario.img = resp.usuario.img;  // Almacena en la propiedad usuario el nuevo valor de usuario.img con la imagen actualizada
+            Swal.fire('Imagen Actualizada', this.usuario.nombre, 'success');  //Alerta de SweetAlert2 para imagen actualizada
+            this.guardarStorage(id, this.token, this.usuario, this.menu);  // Guarda en el LocalStorage los nuevos valores actualizados
+      
         })
         .catch(resp => {  // El catch de la promesa creada en el servicio subirArchivo
           
-          console.log(resp);  // Imprime en consola la respuesta con el error si existe
+            console.log(resp);  // Imprime en consola la respuesta con el error si existe
         });
   }
 

@@ -1,13 +1,13 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-import { URL_SERVICIOS } from '../config/config';
+import { URL_SERVICIOS } from '../config/config';  // Importar la url base 'http://localhost:3000'
 
 @Pipe({
   name: 'imagen'
 })
 export class ImagenPipe implements PipeTransform {
 
-  transform(img: string, tipo: string = 'usuario') {  //El valor del pipe será 'img' y el argumento será el 'tipo' (usuarios, médicos o hospitales)
+  transform(img: string, tipo: string = 'usuario') {  //El valor del pipe será 'img' (el nombre de la imagen) y el argumento será el 'tipo' (usuario, médico o hospital). Si no se especifíca el argumento del pipe (usuario, hospital o medico) por defecto toma el tipo 'usuario'
     
     let url = URL_SERVICIOS + '/img';  //url base 'http://localhost:3000/img' ====> 'http://localhost:3000/img/:tipo/:img'
 
@@ -38,7 +38,7 @@ export class ImagenPipe implements PipeTransform {
         url += '/usuarios/abc';
     }
 
-    return url;  //Si la imagen existe y es de aluno de los 3 tipos anteriores retorna la ruta almacenada en url
+    return url;  //Si la imagen existe y es de alguno de los 3 tipos anteriores retorna la ruta almacenada en url
 
   }
 

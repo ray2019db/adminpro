@@ -43,8 +43,10 @@
                 <!-- Search -->
                 <!-- ============================================================== -->
                 <li class="nav-item hidden-xs-down search-box"> <a class="nav-link hidden-sm-down waves-effect waves-dark" href="javascript:void(0)"><i class="ti-search"></i></a>
-                    <form class="app-search">
-                        <input type="text" class="form-control" placeholder="Search & enter"> <a class="srh-btn"><i class="ti-close"></i></a> </form>
+                    <div class="app-search">
+                        <!--Colocamos una referencia al input '#input' y cuando se suelte la tecla 'enter' ejecute la función "buscar(input.value)" el argumento es 'input.value' que no es más que el término de búsqueda escrito en el input -->
+                        <input #input (keyup.enter)="buscar(input.value)" type="text" class="form-control" placeholder="Buscar y enter"> <a class="srh-btn"><i class="ti-close"></i></a>
+                    </div>
                 </li>
                 <!-- ============================================================== -->
                 <!-- Messages -->
