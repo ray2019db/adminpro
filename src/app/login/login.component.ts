@@ -88,7 +88,7 @@ export class LoginComponent implements OnInit {
         this.usuarioService.login(usuario, formLogin.value.recuerdame)  //Ejecuta el método login del servicio usuarioService se pasa como parámetros el usuario 'let usuario' y el valor del recuérdame que es el estado del checkmark
           .subscribe(resp => {  //Me suscribo para escuchar la respuesta que devuelve el método login que es un observable (devuelve un true si el usuario se autentica correctamente en el backend server) o un error si existe
             console.log(resp);  //Imprime en consola la respuesta enviada por el método login
-            this.router.navigate(['/dashboard']);  //Navega a la sgte ruta '/dashboard' o sea al componente Dashboard
+            this.router.navigate(['/dashboard']);  //Navega a la sgte ruta '/dashboard' o sea al componente Dashboard cuando el usuario se loguea en la aplicación
           });
   }
 

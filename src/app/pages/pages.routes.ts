@@ -20,8 +20,8 @@ import { AdminGuard } from '../services/guards/admin.guard';    // Importar el G
 
 
 const pagesRoutes: Routes = [
-    {path: '', component: PagesComponent, canActivate: [LoginGuard], children: [    //Con el loginGuard de canActivate protejo todas las rutas de abajo es un array donde se pueden incluir más guards
-        {path: 'dashboard', component: DashboardComponent, data: {titulo: 'Dashboard'}},    //data permite dar un título o nombre a las migajas
+    {path: '', component: PagesComponent, canActivate: [LoginGuard], children: [    //Con el 'loginGuard' de canActivate protejo todas las rutas de abajo, es un array donde se pueden incluir más guards. El children es para especificar que las rutas de abajo son rutas hijas de este componente 'pagesComnponent'. El path vacio ( path: '' ) indica que cuando se llame a la ruta base o sea 'http://localhost:4200/#/' cargará el componente 'pagesomponent'
+        {path: 'dashboard', component: DashboardComponent, data: {titulo: 'Dashboard'}},    //'data' permite dar un título o nombre a las migajas 'breadcrumbs', ver componente 'breadcrumbs.Component.ts'
         {path: 'progress', component: ProgressComponent, data: {titulo: 'Progress Bar'}},
         {path: 'graficas1', component: Graficas1Component, data: {titulo: 'Gráficas'}},
         {path: 'promesas', component: PromesasComponent, data: {titulo: 'Promesas'}},
@@ -38,4 +38,4 @@ const pagesRoutes: Routes = [
     ]}
 ];
 
-export const PAGES_ROUTES  = RouterModule.forChild(pagesRoutes);
+export const PAGES_ROUTES  = RouterModule.forChild(pagesRoutes);    // La constante 'PAGES_ROUTES' almacena el arreglo de rutas de la constante 'pagesRoutes' de tipo Routes y se tiene que importar en el módulo 'pages.module.ts'. El forChild es para indicar que son rutas hijas en este caso del componente 'pagesComponent'
