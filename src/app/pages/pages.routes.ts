@@ -1,6 +1,5 @@
 import { RouterModule, Routes } from "@angular/router";
 
-import { PagesComponent } from "./pages.component";
 import { DashboardComponent } from "./dashboard/dashboard.component";
 import { ProgressComponent } from "./progress/progress.component";
 import { Graficas1Component } from "./graficas1/graficas1.component";
@@ -15,13 +14,13 @@ import { MedicoComponent } from "./medicos/medico.component";
 import { BusquedaComponent } from './busqueda/busqueda.component';
 
 // Guards
-import { LoginGuard } from "../services/guards/login.guard";    // Importar el Guard LoginGuard para proteger el acceso a las rutas si el usuario no esta logueado correctamente
+// import { LoginGuard } from "../services/guards/login.guard";    // Importar el Guard LoginGuard para proteger el acceso a las rutas si el usuario no esta logueado correctamente
 import { AdminGuard } from '../services/guards/admin.guard';    // Importar el Guard AdminGuard para proteger el acceso a la ruta de usuarios '/usuarios' si el usuario autenticado no tiene el role de 'ADMIN_ROLE'
+import { VerificaTokenGuard } from '../services/guards/verifica-token.guard';        // Importar el Guard que verifica si el token no ha expirado aún, si ya expiró protegerá la ruta donde se aplique
 
 
 const pagesRoutes: Routes = [
-    {path: '', component: PagesComponent, canActivate: [LoginGuard], children: [    //Con el 'loginGuard' de canActivate protejo todas las rutas de abajo, es un array donde se pueden incluir más guards. El children es para especificar que las rutas de abajo son rutas hijas de este componente 'pagesComnponent'. El path vacio ( path: '' ) indica que cuando se llame a la ruta base o sea 'http://localhost:4200/#/' cargará el componente 'pagesomponent'
-        {path: 'dashboard', component: DashboardComponent, data: {titulo: 'Dashboard'}},    //'data' permite dar un título o nombre a las migajas 'breadcrumbs', ver componente 'breadcrumbs.Component.ts'
+        {path: 'dashboard', component: DashboardComponent, canActivate: [VerificaTokenGuard], data: {titulo: 'Dashboard'}},    //'data' permite dar un título o nombre a las migajas 'breadcrumbs', ver componente 'breadcrumbs.Component.ts'. El 'canActivate: [VerificaTokenGuard]' protegerá esta ruta para que el usuario no pueda navegar si el token no es válido o expiró
         {path: 'progress', component: ProgressComponent, data: {titulo: 'Progress Bar'}},
         {path: 'graficas1', component: Graficas1Component, data: {titulo: 'Gráficas'}},
         {path: 'promesas', component: PromesasComponent, data: {titulo: 'Promesas'}},
@@ -33,9 +32,7 @@ const pagesRoutes: Routes = [
         {path: 'hospitales', component: HospitalesComponent, data: {titulo: 'Mantenimiento de Hospitales'}},    // Mantenimiento (Actualización del perfil de cada hospital)
         {path: 'medicos', component: MedicosComponent, data: {titulo: 'Mantenimiento de Médicos'}},    // Mantenimiento (Actualización del perfil de los médico)
         {path: 'medico/:id', component: MedicoComponent, data: {titulo: 'Crear o Actualizar un Médico'}},    // Mantenimiento (Actualización del perfil un solo médico)
-
         {path: '', pathMatch: 'full', redirectTo: 'dashboard'}
-    ]}
 ];
 
-export const PAGES_ROUTES  = RouterModule.forChild(pagesRoutes);    // La constante 'PAGES_ROUTES' almacena el arreglo de rutas de la constante 'pagesRoutes' de tipo Routes y se tiene que importar en el módulo 'pages.module.ts'. El forChild es para indicar que son rutas hijas en este caso del componente 'pagesComponent'
+export const PAGES_ROUTES = RouterModule.forChild(pagesRoutes);    // La constante 'PAGES_ROUTES' almacena el arreglo de rutas de la constante 'pagesRoutes' de tipo Routes y se tiene que importar en el módulo 'pages.module.ts'. El forChild es para indicar que son rutas hijas en este caso del componente 'pagesComponent'

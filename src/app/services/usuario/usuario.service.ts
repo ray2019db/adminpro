@@ -17,13 +17,32 @@ export class UsuarioService {
 
   usuario: Usuario;
 
-  token: string;
+  token: string;  // Propiedad token que almacenará el token del usuario logueado en la aplicación
 
   menu: any[] = [];  // Propiedad menu que almacenará (en un arreglo de objetos) el menú del SideBar
 
   constructor(public http: HttpClient, public router: Router, public subirArchivo: SubirArchivoService) {
 
         this.cargarStorage();  //Ejecuta este método en cuanto se carga el servicio
+  }
+
+  renuevaToken(){
+
+        let url = URL_SERVICIOS + '/login/renuevatoken';  // url = http://localhost:3000/login/renuevatoken?token=xxxxxxx 
+        url += '?token=' + this.token;
+
+        return this.http.get(url)  // Retorna la respuesta de esta petición http a la url indicada. El server puede retornar dos cosas, la respuesta si todo está OK o un error si existe algún problema
+              .pipe(map((resp: any) => {  // Pasa por el operador map la respuesta retornada por el server si todo está OK
+                  this.token = resp.token;  // Almacena en la propiedad token el nuevo token que retorna en la respuesta el server si todo está OK al hacerle la petición http 
+                  localStorage.setItem('token', this.token);  //Guarda el nuevo token del usuario logeado en el LocalStorage en una clave token
+                  return true; // Si todo sale bien retorna un true
+              }), 
+              catchError(err => {  // Con catchError capturo el error que envía como respuesta el server de la petición http si no es posible renovar el token
+                  this.router.navigate(['/login']);  // Si la petición http no puede renovar el token y retorna un error entonces redirecciona el usuario a la ruta del login '/login'
+                  Swal.fire('Error al renovar token', 'No fue posible renovar el token', 'error');  //Alerta de SweetAlert2 para mostrar el error si no se puede renovar el token
+                  return throwError(err);  // El throwError es el objeto (importado desde 'rxjs') que devuelve el catchError (recuerda que es un observable) como notificación de un error  
+              })
+              )
   }
 
   estaLogueado(){
